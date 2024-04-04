@@ -41,6 +41,9 @@ TagManager:
   - name: background
     uniqueID: 2988864737
     locked: 0
+  - name: road
+    uniqueID: 2272165331
+    locked: 0
   - name: SkidMarks
     uniqueID: 953157301
     locked: 0

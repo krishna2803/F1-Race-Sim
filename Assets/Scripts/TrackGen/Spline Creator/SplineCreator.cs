@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
 [System.Serializable]
 [RequireComponent(typeof(Voronoi))]
@@ -101,7 +100,7 @@ public class SplineCreator : MonoBehaviour
     /// <summary>
     /// Create the track
     /// </summary>
-    public void CreateTrack()
+    public GameObject CreateTrack()
     {
         if (Spline.AllSmoothPoints.Count > 0)
         {
@@ -111,12 +110,13 @@ public class SplineCreator : MonoBehaviour
             trackMesh = CreateTackMesh(pTwoDShape);
             CreateCurbVertices();
 
-            GenerateTrackObject();
+            return GenerateTrackObject();
         }
         else
         {
             Debug.Log("SPLICE CREATOR: There is no spline. Make sure there is a Voronoi diagram gnerated. Then press the" +
                 " 'Generate Spline'");
+            return null;
         }
     }
 
@@ -223,6 +223,14 @@ public class SplineCreator : MonoBehaviour
     /// </summary>
     public void GenerateSpline()
     {
+        if(_voronoi == null)
+        {
+            Debug.Log("Null voronoi");
+        }
+        if (Spline == null)
+        {
+            Debug.Log("Spline was null");
+        }
         Spline.CreateSpline(_voronoi.SplineOutterEdge());
     }
 
@@ -388,7 +396,7 @@ public class SplineCreator : MonoBehaviour
     /// <summary>
     /// Generate a new GameObject and add the track to it
     /// </summary>
-    private void GenerateTrackObject()
+    public GameObject GenerateTrackObject()
     {
         //if both the trackMesh and curbMesh are not null
         if (trackMesh != null && curbsMesh != null)
@@ -412,7 +420,13 @@ public class SplineCreator : MonoBehaviour
             //set the mesh filter and mesh renderer
             curb.GetComponent<MeshFilter>().sharedMesh = curbsMesh;
             curb.GetComponent<MeshRenderer>().sharedMaterial = CurbMaterial;
+
+            track.transform.rotation = Quaternion.Euler(-90.0f, 0f, 0f);
+            track.transform.position = new Vector3(0.0f, 0.0f, 1.0f);
+            return track;
         }
+
+        return null;
     }
 
     /// <summary>

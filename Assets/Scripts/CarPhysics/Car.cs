@@ -80,6 +80,15 @@ public class Car : MonoBehaviour
     [Range(0f, 10f)]
     float AxleDistanceCorrection = 2f;
 
+    [SerializeField]
+    [Range(0f, 10f)]
+    float Downforce_Coeff = 2.5f;
+
+    [SerializeField]
+    [Range(0f, 10f)]
+    float RollingResistanceCoeff = 0.2f;
+
+
     public float SpeedKilometersPerHour
     {
         get
@@ -352,10 +361,19 @@ public class Car : MonoBehaviour
         float tractionForceX = AxleRear.Torque - activeBrake * Mathf.Sign(LocalVelocity.x);
         float tractionForceY = 0;
 
-        float dragForceX = -RollingResistance * LocalVelocity.x - AirResistance * LocalVelocity.x * Mathf.Abs(LocalVelocity.x);
+        //Rolling Resistance
+        float rollingResistanceFront = RollingResistanceCoeff * weightFront;
+        float rollingResistanceRear = RollingResistanceCoeff * weightRear;
+        float totalRollingResistance = rollingResistanceFront + rollingResistanceRear;
+
+        float sign = LocalVelocity.x == 0 ? Mathf.Sign(AxleRear.Torque) : Mathf.Sign(LocalVelocity.x);
+
+        float dragForceX = -totalRollingResistance * sign - AirResistance * LocalVelocity.x * Mathf.Abs(LocalVelocity.x);
         float dragForceY = -RollingResistance * LocalVelocity.y - AirResistance * LocalVelocity.y * Mathf.Abs(LocalVelocity.y);
 
-        float totalForceX = dragForceX + tractionForceX;
+        float totalForceX = 0;
+
+        if (Mathf.Abs(dragForceX) < Mathf.Abs(tractionForceX)) totalForceX = dragForceX + tractionForceX;
         float totalForceY = dragForceY + tractionForceY + Mathf.Cos(SteerAngle) * AxleFront.FrictionForce + AxleRear.FrictionForce;
 
         //adjust Y force so it levels out the car heading at high speeds
